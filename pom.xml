@@ -6,6 +6,8 @@
     <version>0.0.1-SNAPSHOT</version>
     <groupId>com.bobkevic.jackson.datatype</groupId>
     <packaging>jar</packaging>
+    <description>Jackson module needed to support Google Datastore value entities</description>
+    <url>https://github.com/i11/jackson-datatype-datastore</url>
 
     <organization>
         <name>Ilja Bobkevic</name>
