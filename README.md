@@ -10,6 +10,7 @@ All modules are licensed under [Apache License 2.0](http://www.apache.org/licens
 ## Status
 
 [![Build Status](https://travis-ci.org/i11/jackson-datatype-datastore.svg)](https://travis-ci.org/i11/jackson-datatype-datastore)
+[![Coverage Status](https://coveralls.io/repos/github/i11/jackson-datatype-datastore/badge.svg?branch=master)](https://coveralls.io/github/i11/jackson-datatype-datastore?branch=master)
 
 ## Usage
 
