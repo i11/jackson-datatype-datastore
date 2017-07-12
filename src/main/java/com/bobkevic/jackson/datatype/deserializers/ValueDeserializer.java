@@ -21,6 +21,7 @@ package com.bobkevic.jackson.datatype.deserializers;
  */
 
 import static com.google.cloud.datastore.DateTime.copyFrom;
+import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -89,8 +90,11 @@ class ValueDeserializer extends ReferenceTypeDeserializer<Value<?>> {
   // TODO: Protect against stack overflow
   @Override
   public Value<?> referenceValue(final Object contents) {
-    final Class<?> clazz = contents.getClass();
+    if (isNull(contents)) {
+      return NullValue.of();
+    }
 
+    final Class<?> clazz = contents.getClass();
     if (FullEntity.class.isAssignableFrom(clazz)) {
       return EntityValue.of((FullEntity<?>) contents);
     } else if (Boolean.class.isAssignableFrom(clazz)) {
