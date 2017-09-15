@@ -28,8 +28,8 @@ import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.fasterxml.jackson.databind.type.ReferenceType;
+import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Blob;
-import com.google.cloud.datastore.DateTime;
 import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.Value;
 
@@ -57,8 +57,8 @@ public final class DatastoreSerializers extends Serializers.Base {
     final Class<?> rawClass = type.getRawClass();
     if (FullEntity.class.isAssignableFrom(rawClass)) {
       return FullEntitySerializer.INSTANCE;
-    } else if (DateTime.class.isAssignableFrom(rawClass)) {
-      return DateTimeSerializer.INSTANCE;
+    } else if (Timestamp.class.isAssignableFrom(rawClass)) {
+      return TimeStampSerializer.INSTANCE;
     } else if (Blob.class.isAssignableFrom(rawClass)) {
       return BlobSerializer.INSTANCE;
     }

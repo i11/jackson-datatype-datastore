@@ -20,25 +20,24 @@ package com.bobkevic.jackson.datatype.deserializers;
  * #L%
  */
 
+import static com.bobkevic.jackson.datatype.Caster.cast;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import com.bobkevic.jackson.datatype.DatastoreModule;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.google.cloud.datastore.DateTimeValue;
 import com.google.cloud.datastore.FullEntity;
+import com.google.cloud.datastore.TimestampValue;
 import com.google.cloud.datastore.Value;
 import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DateTimeValueDeserializerTest {
+public class TimeStampValueDeserializerTest {
 
   private ObjectMapper json;
 
@@ -54,9 +53,9 @@ public class DateTimeValueDeserializerTest {
         "{\"test-key-1\": \"2000-01-01T12:00Z\", \"test-key-2\": \"2000-01-01T12:01Z\"}";
     final FullEntity fullEntity = json.readValue(fixutre, FullEntity.class);
 
-    assertThat(fullEntity.getDateTime("test-key-1").toDate().toInstant(),
+    assertThat(fullEntity.getTimestamp("test-key-1").toSqlTimestamp().toInstant(),
         equalTo(ZonedDateTime.parse("2000-01-01T12:00Z").toInstant()));
-    assertThat(fullEntity.getDateTime("test-key-2").toDate().toInstant(),
+    assertThat(fullEntity.getTimestamp("test-key-2").toSqlTimestamp().toInstant(),
         equalTo(ZonedDateTime.parse("2000-01-01T12:01Z").toInstant()));
   }
 
@@ -68,12 +67,12 @@ public class DateTimeValueDeserializerTest {
         json.getTypeFactory().constructMapType(Map.class, String.class, Value.class);
     final Map<String, Value<?>> valueMap = json.readValue(fixutre, mapType);
 
-    final DateTimeValue dateTimeValue1 = (DateTimeValue) valueMap.get("test-key-1");
-    final DateTimeValue dateTimeValue2 = (DateTimeValue) valueMap.get("test-key-2");
+    final TimestampValue dateTimeValue1 = cast(valueMap.get("test-key-1"));
+    final TimestampValue dateTimeValue2 = cast(valueMap.get("test-key-2"));
 
-    assertThat(dateTimeValue1.get().toDate().toInstant(),
+    assertThat(dateTimeValue1.get().toSqlTimestamp().toInstant(),
         equalTo(ZonedDateTime.parse("2000-01-01T12:00Z").toInstant()));
-    assertThat(dateTimeValue2.get().toDate().toInstant(),
+    assertThat(dateTimeValue2.get().toSqlTimestamp().toInstant(),
         equalTo(ZonedDateTime.parse("2000-01-01T12:01Z").toInstant()));
   }
 
