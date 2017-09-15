@@ -20,6 +20,7 @@ package com.bobkevic.jackson.datatype.deserializers;
  * #L%
  */
 
+import static com.bobkevic.jackson.datatype.Caster.cast;
 import static com.google.cloud.datastore.DateTime.copyFrom;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;
@@ -96,11 +97,11 @@ class ValueDeserializer extends ReferenceTypeDeserializer<Value<?>> {
 
     final Class<?> clazz = contents.getClass();
     if (FullEntity.class.isAssignableFrom(clazz)) {
-      return EntityValue.of((FullEntity<?>) contents);
+      return EntityValue.of(cast(contents));
     } else if (Boolean.class.isAssignableFrom(clazz)) {
-      return BooleanValue.of((Boolean) contents);
+      return BooleanValue.of(cast(contents));
     } else if (Double.class.isAssignableFrom(clazz)) {
-      return DoubleValue.of((Double) contents);
+      return DoubleValue.of(cast(contents));
     } else if (Long.class.isAssignableFrom(clazz) || Integer.class.isAssignableFrom(clazz)) {
       return LongValue.of(Long.valueOf(contents.toString()));
     } else if (String.class.isAssignableFrom(clazz)) {
@@ -113,23 +114,22 @@ class ValueDeserializer extends ReferenceTypeDeserializer<Value<?>> {
                   .setExcludeFromIndexes(value.getBytes().length > 1500)
                   .build());
     } else if (ZonedDateTime.class.isAssignableFrom(clazz)) {
-      final ZonedDateTime dateTime = (ZonedDateTime) contents;
+      final ZonedDateTime dateTime = cast(contents);
       return DateTimeValue.of(DateTime.copyFrom(Date.from(dateTime.toInstant())));
     } else if (Instant.class.isAssignableFrom(clazz)) {
-      final Instant instant = (Instant) contents;
-      return DateTimeValue.of(DateTime.copyFrom(Date.from(instant)));
+      return DateTimeValue.of(DateTime.copyFrom(Date.from(cast(contents))));
     } else if (List.class.isAssignableFrom(clazz)) {
-      final List<Object> rawList = (List<Object>) contents;
+      final List<Object> rawList = cast(contents);
       return ListValue.of(rawList.stream()
           .map(this::referenceValue)
           .collect(toList()));
     } else if (Map.class.isAssignableFrom(clazz)) {
-      final Map<String, Object> rawMap = (Map<String, Object>) contents;
+      final Map<String, Object> rawMap = cast(contents);
       final FullEntity.Builder<IncompleteKey> builder = FullEntity.newBuilder();
       rawMap.forEach((key, value) -> builder.set(key, referenceValue(value)));
       return EntityValue.of(builder.build());
     }
 
-    return (Value<?>) contents;
+    return cast(contents);
   }
 }
