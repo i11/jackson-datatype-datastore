@@ -50,7 +50,7 @@ class FullEntityDeserializer extends StdDeserializer<FullEntity> {
 
   @Override
   public FullEntity deserialize(JsonParser p, DeserializationContext ctxt)
-      throws IOException, JsonProcessingException {
+      throws IOException {
     final MapType type =
         ctxt.getTypeFactory().constructMapType(Map.class, String.class, Value.class);
     final JsonDeserializer<Object> deserializer =
