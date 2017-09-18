@@ -20,7 +20,7 @@ package com.bobkevic.jackson.datatype.deserializers;
  * #L%
  */
 
-import static com.google.cloud.datastore.DateTime.copyFrom;
+import static com.bobkevic.jackson.datatype.Caster.cast;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;
 
@@ -29,9 +29,8 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.std.ReferenceTypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.BooleanValue;
-import com.google.cloud.datastore.DateTime;
-import com.google.cloud.datastore.DateTimeValue;
 import com.google.cloud.datastore.DoubleValue;
 import com.google.cloud.datastore.EntityValue;
 import com.google.cloud.datastore.FullEntity;
@@ -40,6 +39,7 @@ import com.google.cloud.datastore.ListValue;
 import com.google.cloud.datastore.LongValue;
 import com.google.cloud.datastore.NullValue;
 import com.google.cloud.datastore.StringValue;
+import com.google.cloud.datastore.TimestampValue;
 import com.google.cloud.datastore.Value;
 import java.sql.Date;
 import java.time.Instant;
@@ -72,8 +72,8 @@ class ValueDeserializer extends ReferenceTypeDeserializer<Value<?>> {
     return Optional.empty();
   }
 
-  static Value dateTimeValueOf(final ZonedDateTime dateTime) {
-    return DateTimeValue.of(copyFrom((Date.from(dateTime.toInstant()))));
+  static Value timeStampValueOf(final ZonedDateTime dateTime) {
+    return TimestampValue.of(Timestamp.of(Date.from(dateTime.toInstant())));
   }
 
   @Override
@@ -96,40 +96,38 @@ class ValueDeserializer extends ReferenceTypeDeserializer<Value<?>> {
 
     final Class<?> clazz = contents.getClass();
     if (FullEntity.class.isAssignableFrom(clazz)) {
-      return EntityValue.of((FullEntity<?>) contents);
+      return EntityValue.of(cast(contents));
     } else if (Boolean.class.isAssignableFrom(clazz)) {
-      return BooleanValue.of((Boolean) contents);
+      return BooleanValue.of(cast(contents));
     } else if (Double.class.isAssignableFrom(clazz)) {
-      return DoubleValue.of((Double) contents);
+      return DoubleValue.of(cast(contents));
     } else if (Long.class.isAssignableFrom(clazz) || Integer.class.isAssignableFrom(clazz)) {
       return LongValue.of(Long.valueOf(contents.toString()));
     } else if (String.class.isAssignableFrom(clazz)) {
       final String value = contents.toString();
       final Optional<ZonedDateTime> zonedDateTime = parseDate(value);
       return zonedDateTime
-          .map(ValueDeserializer::dateTimeValueOf)
+          .map(ValueDeserializer::timeStampValueOf)
           .orElseGet(() ->
               StringValue.newBuilder(value)
                   .setExcludeFromIndexes(value.getBytes().length > 1500)
                   .build());
     } else if (ZonedDateTime.class.isAssignableFrom(clazz)) {
-      final ZonedDateTime dateTime = (ZonedDateTime) contents;
-      return DateTimeValue.of(DateTime.copyFrom(Date.from(dateTime.toInstant())));
+      return TimestampValue.of(Timestamp.of((Date.from(cast(contents)))));
     } else if (Instant.class.isAssignableFrom(clazz)) {
-      final Instant instant = (Instant) contents;
-      return DateTimeValue.of(DateTime.copyFrom(Date.from(instant)));
+      return TimestampValue.of(Timestamp.of((Date.from(cast(contents)))));
     } else if (List.class.isAssignableFrom(clazz)) {
-      final List<Object> rawList = (List<Object>) contents;
+      final List<Object> rawList = cast(contents);
       return ListValue.of(rawList.stream()
           .map(this::referenceValue)
           .collect(toList()));
     } else if (Map.class.isAssignableFrom(clazz)) {
-      final Map<String, Object> rawMap = (Map<String, Object>) contents;
+      final Map<String, Object> rawMap = cast(contents);
       final FullEntity.Builder<IncompleteKey> builder = FullEntity.newBuilder();
       rawMap.forEach((key, value) -> builder.set(key, referenceValue(value)));
       return EntityValue.of(builder.build());
     }
 
-    return (Value<?>) contents;
+    return cast(contents);
   }
 }

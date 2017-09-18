@@ -37,7 +37,7 @@ class FullEntitySerializer extends JsonSerializer<FullEntity> {
   public void serialize(final FullEntity value,
                         final JsonGenerator gen,
                         final SerializerProvider provider)
-      throws IOException, JsonProcessingException {
+      throws IOException {
     if (Objects.nonNull(value)) {
       gen.writeStartObject();
       for (final Object name : value.getNames()) {

@@ -15,19 +15,28 @@ All modules are licensed under [Apache License 2.0](http://www.apache.org/licens
 ## Usage
 
 ### Maven dependencies
-
 ```xml
 <dependency>
     <groupId>com.bobkevic.jackson.datatype</groupId>
     <artifactId>jackson-module-datastore</artifactId>
 </dependency>
 ```
+**_Note that you also need to depend on the jsr310 module_**
+
+```xml
+<dependency>
+    <groupId>com.fasterxml.jackson.datatype</groupId>
+    <artifactId>jackson-datatype-jsr310</artifactId>
+</dependency>
+```
+
 
 ### Registering modules
-
+**_Note that the JavaTimeModule is also added_**
 ```java
 final ObjectMapper mapper = new ObjectMapper()
-   .registerModule(new DatastoreModule());
+   .registerModule(new DatastoreModule())
+   .registerModule(new JavaTimeModule());
 ```
 
 or, alternatively, you can also auto-discover these modules with:

@@ -23,22 +23,24 @@ package com.bobkevic.jackson.datatype.serializers;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.google.cloud.datastore.DateTime;
+import com.google.cloud.Timestamp;
 import java.io.IOException;
-import java.util.Date;
+import java.time.Instant;
 import java.util.Objects;
 
-class DateTimeSerializer extends JsonSerializer<DateTime> {
+class TimeStampSerializer extends JsonSerializer<Timestamp> {
 
-  static final DateTimeSerializer INSTANCE = new DateTimeSerializer();
+  static final TimeStampSerializer INSTANCE = new TimeStampSerializer();
 
   @Override
-  public void serialize(final DateTime value,
+  public void serialize(final Timestamp value,
                         final JsonGenerator gen,
                         final SerializerProvider provider)
       throws IOException {
     if (Objects.nonNull(value)) {
-      provider.findValueSerializer(Date.class).serialize(value.toDate(), gen, provider);
+      provider
+          .findValueSerializer(Instant.class)
+          .serialize(value.toSqlTimestamp().toInstant(), gen, provider);
     } else {
       gen.writeNull();
     }

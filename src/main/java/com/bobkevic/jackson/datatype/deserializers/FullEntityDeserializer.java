@@ -20,6 +20,8 @@ package com.bobkevic.jackson.datatype.deserializers;
  * #L%
  */
 
+import static com.bobkevic.jackson.datatype.Caster.cast;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -48,12 +50,12 @@ class FullEntityDeserializer extends StdDeserializer<FullEntity> {
 
   @Override
   public FullEntity deserialize(JsonParser p, DeserializationContext ctxt)
-      throws IOException, JsonProcessingException {
+      throws IOException {
     final MapType type =
         ctxt.getTypeFactory().constructMapType(Map.class, String.class, Value.class);
     final JsonDeserializer<Object> deserializer =
         ctxt.findContextualValueDeserializer(type, null);
 
-    return mapToFullEntity((Map<String, Value<?>>) deserializer.deserialize(p, ctxt));
+    return mapToFullEntity(cast(deserializer.deserialize(p, ctxt)));
   }
 }

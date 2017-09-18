@@ -25,14 +25,15 @@ import static org.junit.Assert.assertThat;
 
 import com.bobkevic.jackson.datatype.DatastoreModule;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Blob;
 import com.google.cloud.datastore.BlobValue;
 import com.google.cloud.datastore.BooleanValue;
-import com.google.cloud.datastore.DateTime;
-import com.google.cloud.datastore.DateTimeValue;
 import com.google.cloud.datastore.EntityValue;
 import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.StringValue;
+import com.google.cloud.datastore.TimestampValue;
 import com.google.cloud.datastore.Value;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -49,7 +50,9 @@ public class ValueSerializerTest {
 
   @Before
   public void setUp() {
-    json = new ObjectMapper().registerModule(new DatastoreModule());
+    json = new ObjectMapper()
+        .registerModule(new DatastoreModule())
+        .registerModule(new JavaTimeModule());
   }
 
   @Test
@@ -59,7 +62,7 @@ public class ValueSerializerTest {
     final String testArrayKey = "test-array";
     final String testBlobKey = "blob-check-key";
     final List<? extends Value<?>> valueList = ImmutableList.<Value<?>>builder()
-        .add(DateTimeValue.of(DateTime.copyFrom(Date.from(Instant.parse("1970-01-01T00:00:01Z")))))
+        .add(TimestampValue.of(Timestamp.of((Date.from(Instant.parse("1970-01-01T00:00:01Z"))))))
         .add(StringValue.of("string-element1"))
         .add(BooleanValue.of(true))
         .add(EntityValue
@@ -76,7 +79,7 @@ public class ValueSerializerTest {
 
     assertThat(testValueString,
         is("{\"" + testBlobKey + "\":\"AQID\",\"" + testArrayKey
-           + "\":[1000,\"string-element1\",true,{\"embeded-key\":\"because-i-can\"}],\""
+           + "\":[1.000000000,\"string-element1\",true,{\"embeded-key\":\"because-i-can\"}],\""
            + testKey + "\":\"" + testValue + "\"}"));
   }
 
